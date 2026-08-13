@@ -89,8 +89,9 @@
     <form method="dialog" class="dialog-form" id="settings-form">
       <h2>Réglages · synchronisation GitHub</h2>
       <p class="hint">
-        Les données sont stockées dans un fichier <code>data.json</code> de ton repo GitHub.
-        Colle ici un <strong>fine-grained token</strong> limité à ce repo
+        Les données sont stockées dans le fichier <code>data.json</code> d'un
+        repo GitHub <strong>privé</strong>, distinct de celui de l'app.
+        Colle ici un <strong>fine-grained token</strong> limité à ce repo de données
         (permission « Contents : Read and write »). Il reste uniquement sur cet appareil.
       </p>
 
@@ -100,8 +101,8 @@
           <input type="text" id="s-owner" placeholder="lwerwinski" autocapitalize="off">
         </label>
         <label class="field">
-          <span>Repo</span>
-          <input type="text" id="s-repo" placeholder="appart-gobelins" autocapitalize="off">
+          <span>Repo de données</span>
+          <input type="text" id="s-repo" placeholder="appart-gobelins-data" autocapitalize="off">
         </label>
       </div>
 
@@ -120,6 +121,7 @@
 
       <div class="dialog-actions">
         <button type="button" id="btn-test-connection" class="btn-secondary">Tester la connexion</button>
+        <button type="button" id="btn-copy-link" class="btn-secondary" title="Pour configurer ton autre appareil en un clic">Copier le lien de config</button>
         <span class="spacer"></span>
         <button type="button" class="btn-secondary" data-close>Annuler</button>
         <button type="submit" class="btn-primary">Enregistrer</button>

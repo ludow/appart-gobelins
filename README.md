@@ -1,9 +1,10 @@
 # 🏠 Appart Gobelins
 
 Petite application web (vanilla JS, sans build) pour gérer la liste d'achats et
-le brainstorming d'emménagement. Hébergée sur GitHub Pages, synchronisée entre
-appareils via l'API GitHub : les données vivent dans le fichier
-[`data.json`](data.json) de ce repo.
+le brainstorming d'emménagement. L'app est hébergée sur GitHub Pages (ce repo,
+public) ; les données vivent dans le fichier `data.json` d'un **second repo
+privé** (`appart-gobelins-data`), lu et écrit via l'API GitHub. Ainsi la liste
+n'est visible par personne d'autre, tout en restant sur le plan gratuit.
 
 ## Fonctionnalités
 
@@ -17,37 +18,45 @@ appareils via l'API GitHub : les données vivent dans le fichier
 
 ## Mise en route
 
-### 1. Publier sur GitHub Pages
+### 1. Les deux repos
 
-1. Pousser ce dossier dans un repo GitHub (public pour Pages gratuit).
-2. Sur GitHub : **Settings → Pages → Build and deployment** :
-   *Source* = « Deploy from a branch », *Branch* = `main`, dossier `/ (root)`.
-3. L'app est disponible sur `https://<owner>.github.io/<repo>/`.
+1. **`appart-gobelins`** (public) : ce dossier, publié via
+   **Settings → Pages → Build and deployment** : *Source* = « Deploy from a
+   branch », *Branch* = `main`, dossier `/ (root)`.
+   L'app est disponible sur `https://<owner>.github.io/appart-gobelins/`.
+2. **`appart-gobelins-data`** (privé) : contient uniquement `data.json`.
 
 ### 2. Créer le token de synchronisation
 
 1. GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-2. *Repository access* : « Only select repositories » → ce repo uniquement.
+2. *Repository access* : « Only select repositories » → `appart-gobelins-data` uniquement.
 3. *Permissions → Repository permissions → Contents* : **Read and write**. Rien d'autre.
 4. Expiration : au choix (90 jours max conseillé ; il faudra le recréer ensuite).
 
 ### 3. Configurer chaque appareil
 
-Sur le Mac **et** sur le téléphone : ouvrir l'app → ⚙️ → renseigner
-propriétaire / repo / branche, coller le token → « Tester la connexion » →
-Enregistrer. Le token ne quitte jamais l'appareil (stocké en `localStorage`).
+Sur le **premier appareil** (le Mac, plus simple) : ouvrir l'app → ⚙️ →
+renseigner propriétaire / repo de données (`appart-gobelins-data`) / branche
+(`main`), coller le token → « Tester la connexion » → Enregistrer.
+
+Pour le **téléphone** : ⚙️ → « Copier le lien de config » sur le Mac, s'envoyer
+le lien (AirDrop, message…) et l'ouvrir une fois sur le téléphone : l'app se
+configure toute seule et nettoie l'URL. ⚠️ Ce lien contient le token — ne pas
+le partager ni le poster.
+
+Ensuite, plus aucune action : ouvrir l'URL suffit, la sync est automatique.
+Le token ne quitte jamais l'appareil (stocké en `localStorage`).
 
 Sur le téléphone : « Ajouter à l'écran d'accueil » pour l'utiliser comme une app.
 
 ## Notes
 
-- ⚠️ Le repo étant public, `data.json` (la liste d'achats) l'est aussi. Rien de
-  sensible n'y est stocké, mais ne pas y mettre d'adresse, de budget global, etc.
-  (Alternative : repo privé + GitHub Pro, ou déplacer les données vers un gist secret.)
+- L'app (ce repo public) ne contient aucune donnée : sans token, elle affiche
+  une liste vide. La liste réelle n'existe que dans le repo privé.
 - L'indicateur ● en haut à droite montre l'état de sync : gris = non configuré,
   vert = synchronisé, orange = modifications en attente, rouge = erreur (cliquer pour réessayer).
 - Chaque enregistrement crée un commit sur `data.json` : l'historique de la liste
-  est simplement l'historique git.
+  est simplement l'historique git du repo de données.
 - Les pièces se modifient en éditant le tableau `rooms` de `data.json`.
 
 ## Développement local

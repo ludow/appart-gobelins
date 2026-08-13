@@ -40,19 +40,36 @@ function loadConfig() {
     if (stored) Object.assign(state.config, stored);
   } catch { /* config illisible, on repart des défauts */ }
 
-  // Sur *.github.io, pré-remplit propriétaire et repo depuis l'URL.
+  // Sur *.github.io, pré-remplit le propriétaire depuis l'URL. Le repo de
+  // données (privé) est distinct du repo de l'app : il reste à saisir.
   const m = location.hostname.match(/^([^.]+)\.github\.io$/);
-  if (m) {
-    if (!state.config.owner) state.config.owner = m[1];
-    if (!state.config.repo) {
-      const seg = location.pathname.split('/').filter(Boolean)[0];
-      if (seg) state.config.repo = seg;
-    }
-  }
+  if (m && !state.config.owner) state.config.owner = m[1];
 }
 
 function saveConfig() {
   localStorage.setItem(LS_CONFIG, JSON.stringify(state.config));
+}
+
+// Configuration en un clic : l'app ouverte avec #cfg=<base64> (lien généré
+// depuis les réglages d'un appareil déjà configuré) s'auto-configure puis
+// nettoie l'URL pour ne pas laisser le token dans l'historique.
+function applyHashConfig() {
+  const m = location.hash.match(/^#cfg=(.+)$/);
+  if (!m) return;
+  try {
+    const cfg = JSON.parse(atob(decodeURIComponent(m[1])));
+    Object.assign(state.config, cfg, { path: DATA_PATH });
+    saveConfig();
+  } catch (err) {
+    console.error('Lien de configuration invalide :', err);
+  }
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+function configLink() {
+  const { owner, repo, branch, token } = settingsFromForm();
+  const encoded = encodeURIComponent(btoa(JSON.stringify({ owner, repo, branch, token })));
+  return `${location.origin}${location.pathname}#cfg=${encoded}`;
 }
 
 function saveLocal() {
@@ -493,6 +510,24 @@ function bindEvents() {
 
   $('#btn-test-connection').addEventListener('click', testConnection);
 
+  $('#btn-copy-link').addEventListener('click', async () => {
+    const result = $('#settings-test-result');
+    result.hidden = false;
+    if (!configComplete(settingsFromForm())) {
+      result.className = 'hint error';
+      result.textContent = 'Renseigne d\'abord propriétaire, repo et token.';
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(configLink());
+      result.className = 'hint ok';
+      result.textContent = '✓ Lien copié — envoie-le sur ton autre appareil (AirDrop, message…) et ouvre-le une fois. Il contient le token : ne le partage à personne.';
+    } catch {
+      // Sans presse-papiers (navigateur ancien, geste non reconnu) : copie manuelle.
+      prompt('Copie ce lien et ouvre-le une fois sur ton autre appareil :', configLink());
+    }
+  });
+
   for (const btn of document.querySelectorAll('[data-close]')) {
     btn.addEventListener('click', () => btn.closest('dialog').close());
   }
@@ -507,6 +542,7 @@ function bindEvents() {
 
 async function init() {
   loadConfig();
+  applyHashConfig();
   bindEvents();
   await loadInitialData();
   render();
