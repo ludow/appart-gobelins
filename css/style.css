@@ -488,6 +488,30 @@ body {
 .hint.ok { color: var(--ok); }
 .hint.error { color: var(--danger); }
 
+#config-link-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#config-link-input {
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.qr-box {
+  align-self: center;
+  background: #fff; /* fond blanc requis pour un scan fiable, même en thème sombre */
+  border-radius: 8px;
+  padding: 8px;
+  line-height: 0;
+}
+
+.qr-box svg {
+  width: 180px;
+  height: 180px;
+}
+
 @media (max-width: 480px) {
   .field-row { flex-direction: column; gap: 14px; }
   .dialog { width: calc(100vw - 16px); }

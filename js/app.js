@@ -510,23 +510,43 @@ function bindEvents() {
 
   $('#btn-test-connection').addEventListener('click', testConnection);
 
-  $('#btn-copy-link').addEventListener('click', async () => {
+  $('#btn-copy-link').addEventListener('click', () => {
     const result = $('#settings-test-result');
     result.hidden = false;
     if (!configComplete(settingsFromForm())) {
       result.className = 'hint error';
       result.textContent = 'Renseigne d\'abord propriétaire, repo et token.';
+      $('#config-link-box').hidden = true;
       return;
     }
-    try {
-      await navigator.clipboard.writeText(configLink());
-      result.className = 'hint ok';
-      result.textContent = '✓ Lien copié — envoie-le sur ton autre appareil (AirDrop, message…) et ouvre-le une fois. Il contient le token : ne le partage à personne.';
-    } catch {
-      // Sans presse-papiers (navigateur ancien, geste non reconnu) : copie manuelle.
-      prompt('Copie ce lien et ouvre-le une fois sur ton autre appareil :', configLink());
-    }
+
+    const link = configLink();
+    const input = $('#config-link-input');
+    input.value = link;
+    $('#config-link-box').hidden = false;
+
+    const qr = qrcode(0, 'M');
+    qr.addData(link);
+    qr.make();
+    $('#config-qr').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+
+    // Copie automatique si le navigateur veut bien ; sinon le lien reste
+    // affiché et sélectionnable, et le QR code suffit pour un téléphone.
+    input.select();
+    navigator.clipboard?.writeText(link).then(
+      () => {
+        result.className = 'hint ok';
+        result.textContent = '✓ Lien aussi copié dans le presse-papiers.';
+      },
+      () => {
+        result.className = 'hint';
+        result.textContent = 'Scanne le QR code, ou sélectionne le lien pour le copier.';
+      },
+    );
   });
+
+  // Un tap sur le lien le sélectionne en entier (copie facile sur mobile).
+  $('#config-link-input').addEventListener('focus', (e) => e.target.select());
 
   for (const btn of document.querySelectorAll('[data-close]')) {
     btn.addEventListener('click', () => btn.closest('dialog').close());

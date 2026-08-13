@@ -119,9 +119,19 @@
 
       <p id="settings-test-result" class="hint" hidden></p>
 
+      <div id="config-link-box" hidden>
+        <label class="field">
+          <span>Lien de configuration — à ouvrir une fois sur l'autre appareil</span>
+          <input type="text" id="config-link-input" readonly>
+        </label>
+        <div id="config-qr" class="qr-box"></div>
+        <p class="hint">Scanne le QR code avec l'appareil photo du téléphone, ou copie le lien
+          ci-dessus. ⚠️ Il contient le token : ne le partage à personne.</p>
+      </div>
+
       <div class="dialog-actions">
         <button type="button" id="btn-test-connection" class="btn-secondary">Tester la connexion</button>
-        <button type="button" id="btn-copy-link" class="btn-secondary" title="Pour configurer ton autre appareil en un clic">Copier le lien de config</button>
+        <button type="button" id="btn-copy-link" class="btn-secondary" title="Pour configurer ton autre appareil en un clic">Lien pour l'autre appareil</button>
         <span class="spacer"></span>
         <button type="button" class="btn-secondary" data-close>Annuler</button>
         <button type="submit" class="btn-primary">Enregistrer</button>
@@ -129,6 +139,7 @@
     </form>
   </dialog>
 
+  <script src="js/vendor/qrcode.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
