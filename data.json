@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-13T10:00:00.000Z",
+  "rooms": [
+    { "id": "chambre", "name": "Chambre 1", "emoji": "🛏️" },
+    { "id": "bureau", "name": "Bureau", "emoji": "💻" },
+    { "id": "salon", "name": "Salon", "emoji": "🛋️" },
+    { "id": "cuisine", "name": "Cuisine", "emoji": "🍳" },
+    { "id": "sdb", "name": "Salle de bain", "emoji": "🛁" },
+    { "id": "dressing", "name": "Dressing / Cagibi", "emoji": "📦" },
+    { "id": "divers", "name": "Divers", "emoji": "🏠" }
+  ],
+  "items": [
+    {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Lit Emma",
+      "roomId": "chambre",
+      "status": "bought",
+      "description": "Acheté chez Emma.",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Pack matelas Emma",
+      "roomId": "chambre",
+      "status": "bought",
+      "description": "Matelas + 2 oreillers + couette + linge de lit.",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "Balai WC",
+      "roomId": "sdb",
+      "status": "bought",
+      "description": "",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "Serviettes",
+      "roomId": "sdb",
+      "status": "bought",
+      "description": "",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "Produits d'entretien",
+      "roomId": "divers",
+      "status": "bought",
+      "description": "Premier stock de départ.",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Aspirateur",
+      "roomId": "divers",
+      "status": "todo",
+      "description": "À comparer : puissance (W ou kPa), niveau sonore (dB), balai ou traîneau, autonomie si sans fil.",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "Canapé",
+      "roomId": "salon",
+      "status": "idea",
+      "description": "Prendre les mesures du salon avant de chercher. Noter largeur / profondeur / hauteur d'assise.",
+      "links": [],
+      "preferredLinkId": null,
+      "createdAt": "2026-08-13T10:00:00.000Z",
+      "updatedAt": "2026-08-13T10:00:00.000Z"
+    }
+  ]
+}

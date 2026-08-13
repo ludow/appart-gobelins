@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1c23">
+  <title>Appart Gobelins</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="app-header-row">
+      <h1>🏠 Appart Gobelins</h1>
+      <div class="header-actions">
+        <button id="sync-indicator" class="sync-indicator" title="État de la synchronisation">●</button>
+        <button id="btn-settings" class="icon-btn" title="Réglages">⚙️</button>
+      </div>
+    </div>
+    <p id="progress-line" class="progress-line"></p>
+  </header>
+
+  <div class="toolbar">
+    <input type="search" id="search" class="search-input" placeholder="Rechercher un article…" autocomplete="off">
+    <div class="chip-row" id="status-filters">
+      <button class="chip is-active" data-status="all">Tout</button>
+      <button class="chip" data-status="todo">À acheter</button>
+      <button class="chip" data-status="idea">Idées</button>
+      <button class="chip" data-status="bought">Acheté</button>
+    </div>
+    <div class="chip-row" id="room-filters"></div>
+  </div>
+
+  <main id="item-list" class="item-list"></main>
+
+  <button id="btn-add" class="fab" title="Ajouter un article">＋</button>
+
+  <!-- Éditeur d'article -->
+  <dialog id="item-dialog" class="dialog">
+    <form method="dialog" class="dialog-form" id="item-form">
+      <h2 id="item-dialog-title">Nouvel article</h2>
+
+      <label class="field">
+        <span>Nom *</span>
+        <input type="text" id="f-name" required placeholder="Ex : Aspirateur balai">
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Pièce</span>
+          <select id="f-room"></select>
+        </label>
+        <label class="field">
+          <span>Statut</span>
+          <select id="f-status">
+            <option value="idea">💡 Idée</option>
+            <option value="todo">🛒 À acheter</option>
+            <option value="bought">✅ Acheté</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span>Infos pratiques</span>
+        <textarea id="f-description" rows="3"
+          placeholder="Dimensions, puissance, niveau sonore (dB), contraintes…"></textarea>
+      </label>
+
+      <fieldset class="links-fieldset">
+        <legend>Liens / options d'achat <small>(coche ton choix préféré)</small></legend>
+        <div id="f-links"></div>
+        <button type="button" id="btn-add-link" class="btn-secondary btn-small">＋ Ajouter un lien</button>
+      </fieldset>
+
+      <div class="dialog-actions">
+        <button type="button" id="btn-delete-item" class="btn-danger" hidden>Supprimer</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn-secondary" data-close>Annuler</button>
+        <button type="submit" class="btn-primary" id="btn-save-item">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Réglages -->
+  <dialog id="settings-dialog" class="dialog">
+    <form method="dialog" class="dialog-form" id="settings-form">
+      <h2>Réglages · synchronisation GitHub</h2>
+      <p class="hint">
+        Les données sont stockées dans un fichier <code>data.json</code> de ton repo GitHub.
+        Colle ici un <strong>fine-grained token</strong> limité à ce repo
+        (permission « Contents : Read and write »). Il reste uniquement sur cet appareil.
+      </p>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Propriétaire</span>
+          <input type="text" id="s-owner" placeholder="lwerwinski" autocapitalize="off">
+        </label>
+        <label class="field">
+          <span>Repo</span>
+          <input type="text" id="s-repo" placeholder="appart-gobelins" autocapitalize="off">
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Branche</span>
+          <input type="text" id="s-branch" placeholder="main" autocapitalize="off">
+        </label>
+        <label class="field">
+          <span>Token</span>
+          <input type="password" id="s-token" placeholder="github_pat_…" autocomplete="off">
+        </label>
+      </div>
+
+      <p id="settings-test-result" class="hint" hidden></p>
+
+      <div class="dialog-actions">
+        <button type="button" id="btn-test-connection" class="btn-secondary">Tester la connexion</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn-secondary" data-close>Annuler</button>
+        <button type="submit" class="btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
