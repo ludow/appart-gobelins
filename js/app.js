@@ -5,8 +5,12 @@ const LS_CONFIG = 'ag.config';
 const DATA_PATH = 'data.json';
 const SYNC_DEBOUNCE_MS = 2500;
 
-const STATUS_LABELS = { idea: '💡 Idée', todo: '🛒 À acheter', bought: '✅ Acheté' };
+const STATUS_LABELS = { idea: 'Idée', todo: 'À acheter', bought: 'Acheté' };
 const STATUS_ORDER = { todo: 0, idea: 1, bought: 2 };
+
+// Pastilles de pièce, attribuées dans l'ordre du tableau rooms.
+const ROOM_COLORS = ['#B4552F', '#8A6BC1', '#6E8F6B', '#C08A2E', '#4E7C93', '#9A6A85', '#7A7F5C', '#8B6F4E'];
+const NEUTRAL_DOT = '#A79E92';
 
 const state = {
   data: { version: 1, updatedAt: '', rooms: [], items: [] },
@@ -76,22 +80,11 @@ function saveLocal() {
   localStorage.setItem(LS_DATA, JSON.stringify(state.data));
 }
 
-async function loadInitialData() {
+function loadInitialData() {
   try {
     const stored = JSON.parse(localStorage.getItem(LS_DATA) || 'null');
-    if (stored && Array.isArray(stored.items)) {
-      state.data = stored;
-      return;
-    }
-  } catch { /* cache illisible, on retombe sur le fichier embarqué */ }
-
-  try {
-    const res = await fetch(DATA_PATH, { cache: 'no-store' });
-    if (res.ok) {
-      state.data = await res.json();
-      saveLocal();
-    }
-  } catch { /* hors ligne et sans cache : on démarre vide */ }
+    if (stored && Array.isArray(stored.items)) state.data = stored;
+  } catch { /* cache illisible : on démarre vide, la sync remplira */ }
 }
 
 // ---------- Synchronisation GitHub ----------
@@ -184,7 +177,12 @@ function roomById(id) {
 }
 
 function roomLabel(room) {
-  return room ? `${room.emoji} ${room.name}` : '—';
+  return room ? room.name : '—';
+}
+
+function roomColor(room) {
+  const i = state.data.rooms.indexOf(room);
+  return i === -1 ? NEUTRAL_DOT : ROOM_COLORS[i % ROOM_COLORS.length];
 }
 
 function filteredItems() {
@@ -214,21 +212,24 @@ function render() {
 function renderProgress() {
   const items = visibleItems();
   const count = (s) => items.filter((it) => it.status === s).length;
-  $('#progress-line').textContent =
-    `${count('bought')} acheté·s · ${count('todo')} à acheter · ${count('idea')} idée·s`;
+  const n = { todo: count('todo'), idea: count('idea'), bought: count('bought') };
+  $('#progress-line').innerHTML =
+    `<span><b class="n-todo">${n.todo}</b> à acheter</span>` +
+    `<span><b class="n-idea">${n.idea}</b> idée${n.idea > 1 ? 's' : ''}</span>` +
+    `<span><b class="n-bought">${n.bought}</b> acheté${n.bought > 1 ? 's' : ''}</span>`;
 }
 
 function renderRoomFilters() {
   const el = $('#room-filters');
   const items = visibleItems();
-  const chips = [{ id: 'all', label: '🏠 Toutes les pièces', count: null }];
+  const chips = [{ id: 'all', name: 'Toutes les pièces', color: NEUTRAL_DOT, count: null }];
   for (const room of state.data.rooms) {
     const todo = items.filter((it) => it.roomId === room.id && it.status !== 'bought').length;
-    chips.push({ id: room.id, label: roomLabel(room), count: todo || null });
+    chips.push({ id: room.id, name: room.name, color: roomColor(room), count: todo || null });
   }
   el.innerHTML = chips.map((c) => `
     <button class="chip ${state.filters.room === c.id ? 'is-active' : ''}" data-room="${esc(c.id)}">
-      ${esc(c.label)}${c.count ? `<span class="count">${c.count}</span>` : ''}
+      <span class="dot" style="background:${c.color}"></span>${esc(c.name)}${c.count ? `<span class="count">${c.count}</span>` : ''}
     </button>`).join('');
 }
 
@@ -245,28 +246,27 @@ function itemCard(item) {
   const links = item.links || [];
   const preferred = links.find((l) => l.id === item.preferredLinkId) || links[0];
   const others = links.length - (preferred ? 1 : 0);
+  const price = item.status !== 'idea' && preferred?.price ? esc(preferred.price) : '—';
 
   let linksHtml = '';
   if (preferred) {
-    const price = preferred.price ? ` · ${esc(preferred.price)}` : '';
     linksHtml = `
-      <div class="item-links">
-        <a class="preferred-link" href="${esc(preferred.url)}" target="_blank" rel="noopener">
-          ⭐ ${esc(linkDisplayName(preferred))}${price}
-        </a>
-        ${others > 0 ? `<span class="link-count">+${others} autre·s option·s</span>` : ''}
+      <div class="row-links">
+        <a class="merchant" href="${esc(preferred.url)}" target="_blank" rel="noopener">${esc(linkDisplayName(preferred))}</a>
+        ${others > 0 ? `<span class="row-more">+${others} option${others > 1 ? 's' : ''}</span>` : ''}
       </div>`;
   }
 
   return `
-    <article class="item-card ${item.status === 'bought' ? 'is-bought' : ''}" data-id="${esc(item.id)}">
-      <div class="item-card-top">
-        <span class="item-name">${esc(item.name)}</span>
-        <span class="status-chip ${esc(item.status)}">${STATUS_LABELS[item.status] || item.status}</span>
+    <article class="row status-${esc(item.status)}" data-id="${esc(item.id)}">
+      <button class="check" data-check type="button" aria-label="Basculer en acheté">✓</button>
+      <div class="row-body">
+        <span class="row-name">${esc(item.name)}</span>
+        <span class="row-status">${STATUS_LABELS[item.status] || item.status}</span>
+        ${item.description ? `<p class="row-desc">${esc(item.description)}</p>` : ''}
+        ${linksHtml}
       </div>
-      ${state.filters.room === 'all' ? '' : ''}
-      ${item.description ? `<p class="item-description">${esc(item.description)}</p>` : ''}
-      ${linksHtml}
+      <span class="row-price">${price}</span>
     </article>`;
 }
 
@@ -285,7 +285,7 @@ function renderList() {
     for (const room of orderedRooms) {
       const inRoom = items.filter((it) => (it.roomId || null) === room.id);
       if (inRoom.length === 0) continue;
-      parts.push(`<h3 class="room-header">${esc(roomLabel(room))}</h3>`);
+      parts.push(`<h3 class="room-header"><span class="dot" style="background:${roomColor(room)}"></span>${esc(room.name)}<span class="spacer"></span><span class="count">${inRoom.length}</span></h3>`);
       parts.push(...sortItems(inRoom).map(itemCard));
     }
     el.innerHTML = parts.join('');
@@ -306,12 +306,13 @@ function linkRowHtml(link) {
   return `
     <div class="link-row" data-link-id="${esc(link.id)}">
       <input type="radio" name="preferred-link" value="${esc(link.id)}" title="Choix préféré">
-      <input type="url" class="link-url" placeholder="https://…" value="${esc(link.url || '')}" inputmode="url">
-      <button type="button" class="link-remove" title="Retirer ce lien">✕</button>
+      <input type="text" class="link-label" placeholder="Libellé (ex : IKEA Malm)" value="${esc(link.label || '')}">
+      <button type="button" class="link-remove" title="Retirer cette option">✕</button>
       <div class="link-detail">
-        <input type="text" class="link-label" placeholder="Libellé (ex : IKEA Malm)" value="${esc(link.label || '')}">
         <input type="text" class="link-price" placeholder="Prix" value="${esc(link.price || '')}">
+        <input type="text" class="link-specs" placeholder="60 min · 65 dB · station murale" value="${esc(link.specs || '')}">
       </div>
+      <input type="url" class="link-url" placeholder="https://…" value="${esc(link.url || '')}" inputmode="url">
     </div>`;
 }
 
@@ -324,6 +325,9 @@ function openItemDialog(itemId) {
   const item = itemId ? state.data.items.find((it) => it.id === itemId) : null;
 
   fillRoomSelect();
+  $('#item-dialog-eyebrow').textContent = item
+    ? `${roomById(item.roomId)?.name || 'Sans pièce'} · ${STATUS_LABELS[item.status] || item.status}`
+    : 'Article';
   $('#item-dialog-title').textContent = item ? 'Modifier l’article' : 'Nouvel article';
   $('#f-name').value = item?.name || '';
   $('#f-room').value = item?.roomId || state.filters.room !== 'all' && state.filters.room || state.data.rooms[0]?.id || '';
@@ -352,6 +356,7 @@ function collectLinks() {
       url,
       label: row.querySelector('.link-label').value.trim(),
       price: row.querySelector('.link-price').value.trim(),
+      specs: row.querySelector('.link-specs').value.trim(),
     });
   }
   const checked = document.querySelector('#f-links input[type="radio"]:checked');
@@ -481,8 +486,25 @@ function bindEvents() {
   });
 
   $('#item-list').addEventListener('click', (e) => {
+    const check = e.target.closest('[data-check]');
+    if (check) {
+      e.stopPropagation();
+      const row = check.closest('.row');
+      const item = state.data.items.find((it) => it.id === row?.dataset.id);
+      if (item) {
+        if (item.status === 'bought') {
+          item.status = item.prevStatus || 'todo';
+        } else {
+          item.prevStatus = item.status;
+          item.status = 'bought';
+        }
+        item.updatedAt = now();
+        touch();
+      }
+      return;
+    }
     if (e.target.closest('a')) return; // laisser les liens s'ouvrir
-    const card = e.target.closest('.item-card');
+    const card = e.target.closest('.row');
     if (card) openItemDialog(card.dataset.id);
   });
 
@@ -564,7 +586,7 @@ async function init() {
   loadConfig();
   applyHashConfig();
   bindEvents();
-  await loadInitialData();
+  loadInitialData();
   render();
   if (configComplete(state.config)) {
     syncNow();

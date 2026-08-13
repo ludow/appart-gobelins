@@ -4,8 +4,8 @@
   "description": "Liste d'achats et brainstorming pour le nouvel appartement",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#14161c",
-  "theme_color": "#1a1c23",
+  "background_color": "#EFE8DE",
+  "theme_color": "#EFE8DE",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
