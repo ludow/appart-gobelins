@@ -62,7 +62,7 @@ Sur le téléphone : « Ajouter à l'écran d'accueil » pour l'utiliser comme u
 ## Développement local
 
 ```bash
-python3 -m http.server 8000
+npx serve -l 8000
 ```
 
 puis ouvrir <http://localhost:8000>. Sans token configuré, l'app fonctionne en
